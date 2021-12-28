@@ -60,7 +60,7 @@ These are the quick steps to get Smoothie dependencies installed on your compute
 ==Building Smoothie
 Follow this guide... [[http://smoothieware.org/compiling-smoothie]]
 
-In short...
+In short...  
 WINDOWS:
 * Clone this repo into path **without** spaces
 * Make sure there is no sh.exe in path (check with ‘where sh.exe’ in a command prompt window). I had it in c:\program files\Git, so for running the win_install.cmd in the next step I simply renamed the sh.ex so is not found any more.
@@ -72,7 +72,7 @@ make all
 }}}
 * The resulting image is in STM32F407xG folder
 
-LINUX:
+LINUX:  
 From a shell, switch into the root Smoothie project directory and run:
 {{{
 make clean
