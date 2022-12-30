@@ -20,7 +20,9 @@ beta_steps_per_mm                            31.992           # Steps per mm for
 gamma_steps_per_mm                           4.4444           # Steps per mm for gamma stepper
 
 # Planner module configuration : Look-ahead and acceleration configuration
-planner_queue_size                           48               # DO NOT CHANGE THIS UNLESS YOU KNOW EXACTLY WHAT YOU ARE DOING
+planner_queue_size                           128              # according to Arthur this value can be increased until the controller runs out of memory
+                                                              # At present each element requires 92byte ABH0 and 400byte heap. AHB0 is the limiting factor
+                                                              # but could be shifted if stack or others would be shifted to CCM
 acceleration                                 10000            # Acceleration in mm/second/second.
 z_acceleration                               8000             # Acceleration for Z only moves in mm/s^2, 0 uses acceleration which is the default. DO NOT SET ON A DELTA
 acceleration_ticks_per_second                1000             # Number of times per second the speed is updated
@@ -66,18 +68,18 @@ gamma_max_rate                               125000.0         # mm/min CGR: I co
 gamma_acceleration                           31000.0          #        CGR: I couldn't get any faster in OpenPnP than with 30000
 
 # A axis: N1 rotation
-delta_steps_per_mm                           4.4444           # steps per degree: 160Â° per rev. @0.9Â° stepper = 400 steps/160Â° x 16 micros = 40
+delta_steps_per_mm                           4.4444           # steps per degree: 160° per rev. @0.9° stepper = 400 steps/160° x 16 micros = 40
 delta_step_pin                               5.14             # Pin for delta stepper step signal
 delta_dir_pin                                5.9!             # Pin for delta stepper direction
 delta_en_pin                                 nc               # Pin for delta enable
 delta_current                                0.5              # Z stepper motor current
-a_axis_max_speed                             120000           # Â°/min
-delta_max_rate                               120000           # Â°/min
-delta_acceleration                           100000           # Â°/sec^2
+a_axis_max_speed                             120000           # °/min
+delta_max_rate                               120000           # °/min
+delta_acceleration                           100000           # °/sec^2
 delta_enable                                 true
 
 # B axis: N2 rotation
-epsilon_steps_per_mm                         4.4444           # steps per mm for epsilon stepper: 8mm spindle @ 1.8Â° stepper = 200 steps/8mm x 16 micros = 400
+epsilon_steps_per_mm                         4.4444           # steps per mm for epsilon stepper: 8mm spindle @ 1.8° stepper = 200 steps/8mm x 16 micros = 400
 epsilon_step_pin                             5.15             # Pin for delta stepper step signal
 epsilon_dir_pin                              5.10!            # Pin for delta stepper direction
 epsilon_en_pin                               nc               # Pin for delta enable
@@ -175,8 +177,8 @@ soft_endstop.x_min                           -1
 soft_endstop.x_max                           511
 soft_endstop.y_min                           -1
 soft_endstop.y_max                           461
-soft_endstop.z_min                           -46.1
-soft_endstop.z_max                           46.1
+soft_endstop.z_min                           -60.0            # limit raised to handle shift after home
+soft_endstop.z_max                           60.0             # limit raised to handle shift after home
 soft_endstop.halt                            false
 
 switch.n1_vac.enable                         true
@@ -207,7 +209,8 @@ switch.vac.enable                            true
 switch.vac.input_on_command                  M808
 switch.vac.input_off_command                 M809
 switch.vac.output_pin                        4.5!
-switch.vac.output_type                       digital
+switch.vac.output_type                       hwpwm
+switch.vac.pwm_period_ms                     0.0625 # 16kHz
 
 switch.ledup.enable                          true
 switch.ledup.input_on_command                M810
@@ -219,19 +222,37 @@ switch.blow.enable                           true
 switch.blow.input_on_command                 M812
 switch.blow.input_off_command                M813
 switch.blow.output_pin                       4.6!
-switch.blow.output_type                      digital
+switch.blow.output_type                      hwpwm
+switch.blow.pwm_period_ms                    0.0625 # 16kHz (value from stock firmware)
 
+# work light on the gantry
+switch.ledwork.enable                        true
+switch.ledwork.input_on_command              M814
+switch.ledwork.input_off_command             M815
+switch.ledwork.output_pin                    6.4
+switch.ledwork.output_type                   pwm
+
+# light on the camera
 switch.leddown.enable                        true
-switch.leddown.input_on_command              M814
-switch.leddown.input_off_command             M815
-switch.leddown.output_pin                    6.4
-switch.leddown.output_type                   pwm
+switch.leddown.input_on_command              M822
+switch.leddown.input_off_command             M823
+switch.leddown.output_pin                    3.15 # OT2
+switch.leddown.output_type                   digital
+switch.leddown.output_type                   hwpwm
+switch.leddown.pwm_period_ms                 0.0625 # 16kHz
 
 switch.dragpin.enable                        true
 switch.dragpin.input_on_command              M816
 switch.dragpin.input_off_command             M817
 switch.dragpin.output_pin                    3.14
-switch.dragpin.output_type                   digital
+switch.dragpin.output_type                   hwpwm
+switch.dragpin.pwm_period_ms                 0.0625 # 16kHz
+
+switch.buzzer.enable                         true
+switch.buzzer.input_on_command               M820
+switch.buzzer.input_off_command              M821
+switch.buzzer.output_pin                     1.7
+switch.buzzer.output_type                    digital
 
 #switch.rs422en.enable                        true
 #switch.rs422en.output_pin                    2.1
